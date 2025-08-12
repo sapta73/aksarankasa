@@ -1,0 +1,116 @@
+/* Device-Specific Variables */
+:root {
+  /* Base Variables */
+  --vh: 1vh;
+  --vw: 1vw;
+  --base-unit: 8px;
+  --touch-target: 44px;
+  --aspect-ratio: 1;
+  --reduce-motion: 0;
+  --enable-shadows: 1;
+
+  /* Responsive Scaling */
+  --scale-factor: min(1, calc((100vw - 320px) / (1920 - 320)));
+  --fluid-spacing: calc(var(--base-unit) * var(--scale-factor));
+
+  /* Dynamic Spacing */
+  --space-xs: calc(var(--base-unit) * 0.5);
+  --space-sm: var(--base-unit);
+  --space-md: calc(var(--base-unit) * 2);
+  --space-lg: calc(var(--base-unit) * 3);
+  --space-xl: calc(var(--base-unit) * 4);
+
+  /* Dynamic Typography */
+  --font-scale: clamp(0.9, var(--scale-factor), 1.1);
+  --font-size-base: calc(16px * var(--font-scale));
+  --font-size-lg: calc(var(--font-size-base) * 1.25);
+  --font-size-xl: calc(var(--font-size-base) * 1.5);
+  --font-size-2xl: calc(var(--font-size-base) * 2);
+  --font-size-3xl: calc(var(--font-size-base) * 3);
+
+  /* Container Dimensions */
+  --container-max-width: min(1200px, 95vw);
+  --container-padding: clamp(var(--space-sm), 3vw, var(--space-xl));
+
+  /* Game Specific */
+  --game-header-height: clamp(60px, 10vh, 100px);
+  --game-footer-height: clamp(50px, 8vh, 80px);
+  --game-content-height: calc(
+    100vh - var(--game-header-height) - var(--game-footer-height)
+  );
+
+  /* Animation Variables */
+  --transition-quick: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+
+  /* Interaction States */
+  --hover-scale: 1.05;
+  --active-scale: 0.98;
+  --disabled-opacity: 0.6;
+}
+
+/* Device-Type-Specific Styles */
+[data-device="mobile"] {
+  --base-unit: 4px;
+  --touch-target: 44px;
+  --container-padding: var(--space-sm);
+  --game-header-height: clamp(50px, 8vh, 80px);
+  --hover-scale: 1.02;
+}
+
+[data-device="tablet"] {
+  --base-unit: 6px;
+  --touch-target: 48px;
+  --container-padding: var(--space-md);
+}
+
+/* Orientation-Specific Adjustments */
+[data-orientation^="landscape"] {
+  --game-content-layout: row;
+  --content-split: 60% 40%;
+}
+
+[data-orientation^="portrait"] {
+  --game-content-layout: column;
+  --content-split: 45% 55%;
+}
+
+/* Performance Mode */
+[data-performance="low"] {
+  --reduce-motion: 1;
+  --enable-shadows: 0;
+}
+
+/* High DPI Screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  :root {
+    --border-width: 0.5px;
+    --shadow-intensity: 0.75;
+  }
+}
+
+/* Safe Area Handling */
+@supports (padding: max(0px)) {
+  :root {
+    --safe-area-top: env(safe-area-inset-top);
+    --safe-area-bottom: env(safe-area-inset-bottom);
+    --safe-area-left: env(safe-area-inset-left);
+    --safe-area-right: env(safe-area-inset-right);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --reduce-motion: 1;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  :root {
+    --touch-feedback: 1;
+    --hover-scale: 1;
+  }
+}

@@ -1,8 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
+import "./styles/deviceOptimization.css"; // Import device optimization first
 import "./styles/main.css"; // Import style global
 import "./styles/Modal.css";
+import { initDeviceOptimizations } from "./utils/deviceOptimization";
+
+// Initialize device optimizations
+initDeviceOptimizations();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

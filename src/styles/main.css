@@ -1,6 +1,20 @@
 /* Import Font dari Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Orbitron:wght@700&display=swap");
 
+/* Modern CSS Reset & Viewport Fix */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Fix for Mobile 100vh Issue */
+:root {
+  --vh: 1vh;
+}
+
 /* Variabel Warna Tema Nusantara-Modern */
 :root {
   --bg-dark: #0a192f;
@@ -25,28 +39,174 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 1rem;
+  min-height: 100vh; /* Fallback */
+  min-height: calc(var(--vh, 1vh) * 100);
+  padding: max(0.5rem, env(safe-area-inset-top));
   box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .app-container {
-  width: 100%;
-  max-width: 1200px;
-  min-height: 90vh;
+  width: var(--container-width, 100%);
+  max-width: var(--container-max-width);
+  height: var(
+    --container-height,
+    calc((var(--vh, 1vh) * 100) - var(--space-md))
+  );
   background-color: var(--card-bg);
-  border-radius: 20px;
-  border: 2px solid var(--border-color);
-  box-shadow: 0 0 25px var(--primary-blue),
-    0 0 15px var(--primary-magenta) inset;
-  padding: 1.5rem;
-  box-sizing: border-box;
+  border-radius: clamp(var(--space-sm), 3vw, var(--space-lg));
+  border: var(--border-width, 2px) solid var(--border-color);
+  box-shadow: calc(
+    var(--enable-shadows) *
+      (0 0 clamp(var(--space-sm), 3vw, var(--space-xl)) var(--primary-blue))
+  );
+  padding: var(--container-padding);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  transform-origin: center;
+  animation: scaleIn var(--transition-normal) ease-out;
+  justify-content: center;
+
+  /* Safe Area Padding */
+  padding-top: max(var(--container-padding), var(--safe-area-top, 0px));
+  padding-bottom: max(var(--container-padding), var(--safe-area-bottom, 0px));
+  padding-left: max(var(--container-padding), var(--safe-area-left, 0px));
+  padding-right: max(var(--container-padding), var(--safe-area-right, 0px));
 }
 
+/* Tablet & Desktop Styles */
 @media (min-width: 768px) {
+  body {
+    padding: 1rem;
+    position: relative;
+    overflow: auto;
+  }
+
   .app-container {
+    min-height: 90vh;
+    height: auto;
+    border-radius: 20px;
+    border: 2px solid var(--border-color);
+    box-shadow: 0 0 25px var(--primary-blue),
+      0 0 15px var(--primary-magenta) inset;
     padding: 2.5rem;
+    margin: 1rem auto;
+  }
+}
+
+/* Mobile Optimization */
+@media (max-width: 480px) {
+  /* Basic Container */
+  .app-container {
+    padding: 0.5rem;
+  }
+
+  /* Homepage */
+  .home-title {
+    font-size: 2rem;
+    margin: 0.5rem 0;
+  }
+
+  .home-subtitle {
+    font-size: 1rem;
+    margin: 0.5rem 0 1rem;
+  }
+
+  /* Quiz Container & Options */
+  .quiz-container {
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .question-area {
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border-radius: 8px;
+  }
+
+  .question-text {
+    font-size: 1.1rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+  }
+
+  .options-area {
+    gap: 0.5rem;
+  }
+
+  .option-btn {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+
+  /* Form & Input Fields */
+  .form-container {
+    gap: 1rem;
+    margin: 1rem auto;
+  }
+
+  .input-field {
+    padding: 8px 12px;
+    font-size: 0.95rem;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    height: 40px; /* Fixed height untuk consistency */
+  }
+
+  .form-title {
+    font-size: 1.75rem;
+  } /* Leaderboard Layout */
+  .leaderboard-item {
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+  }
+
+  .leaderboard-item .details {
+    grid-column: 1 / -1;
+    text-align: left;
+    font-size: 0.9rem;
+  }
+
+  /* Admin Dashboard */
+  .admin-title {
+    font-size: 1.5rem;
+  }
+
+  .admin-nav {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .admin-nav button {
+    width: 100%;
+    padding: 0.8rem;
+  }
+
+  /* Level Selection */
+  .level-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .level-button {
+    padding: 1rem;
+    font-size: 1rem;
   }
 }
 
@@ -292,40 +452,44 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  height: 100%;
-  gap: 1rem;
+  min-height: 100%;
+  gap: clamp(1rem, 3vh, 2rem);
+  padding: clamp(2rem, 10vh, 4rem) 0;
+  margin: auto 0; /* Ini akan membantu konten tetap di tengah */
 }
 .home-title {
   font-family: var(--font-display);
-  font-size: 3rem;
+  font-size: clamp(2.5rem, 5vw, 4rem);
   color: var(--primary-blue);
   text-shadow: 0 0 15px var(--primary-blue), 0 0 5px var(--primary-magenta);
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
 }
-@media (min-width: 768px) {
-  .home-title {
-    font-size: 4rem;
-  }
-}
+
 .home-subtitle {
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
   color: var(--text-light);
-  max-width: 600px;
-  margin-top: -1rem;
+  max-width: min(600px, 90%);
+  margin: clamp(0.5rem, 2vh, 1.5rem) auto;
+  line-height: 1.4;
 }
 .mode-selection {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 1.5rem;
-  margin-top: 2rem;
+  gap: clamp(1rem, 3vh, 1.5rem);
+  margin-top: clamp(1.5rem, 5vh, 3rem);
   width: 100%;
-  max-width: 400px;
+  max-width: min(400px, 90%);
 }
+
 @media (min-width: 600px) {
   .mode-selection {
     flex-direction: row;
     max-width: 500px;
+    gap: clamp(1.5rem, 4vw, 2rem);
   }
 }
 
@@ -620,6 +784,52 @@ body {
   }
   to {
     box-shadow: 0 0 20px var(--primary-magenta) inset;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Safe Area Support untuk Notch/Dynamic Island */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Scrollbar Styling */
+.app-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.app-container::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+  border-radius: 4px;
+}
+
+.app-container::-webkit-scrollbar-thumb {
+  background: var(--primary-blue);
+  border-radius: 4px;
+  box-shadow: 0 0 10px var(--primary-blue);
+}
+
+/* Touch Action Optimization */
+@media (hover: none) and (pointer: coarse) {
+  .btn,
+  .option-btn,
+  .level-button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
