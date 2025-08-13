@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "./supabase/config";
-
 import HomePage from "./pages/HomePage";
 import TeacherLogin from "./pages/TeacherLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import StudentRegister from "./pages/student/StudentRegister";
 import ModeSelect from "./pages/student/ModeSelect";
 import LevelSelect from "./pages/student/LevelSelect";
+import MapelSelect from "./pages/student/MapelSelect";
 import StudentQuiz from "./pages/student/StudentQuiz";
 
 import backsound from "./assets/kids-game-gaming-background-music-297733.mp3";
@@ -18,6 +18,7 @@ function App() {
   const [session, setSession] = useState(null);
   const [student, setStudent] = useState(null);
   const [gameMode, setGameMode] = useState("reguler");
+  const [selectedMapel, setSelectedMapel] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quizConfig, setQuizConfig] = useState(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -43,11 +44,18 @@ function App() {
 
   const handleModeSelect = (mode) => {
     setGameMode(mode);
-    setPage("levelSelect");
+    setPage("mapelSelect");
   };
 
   const handleStartQuiz = (level) => {
-    setQuizConfig({ levelToPlay: level });
+    console.log("Starting quiz with:", { level, mapelId: selectedMapel?.id });
+    if (!selectedMapel) {
+      console.error("Error: selectedMapel is null or undefined");
+      // Jika tidak ada mapel yang dipilih, kembalikan ke halaman pemilihan mapel
+      setPage("mapelSelect");
+      return;
+    }
+    setQuizConfig({ levelToPlay: level, mapelId: selectedMapel?.id });
     setPage("quiz");
   };
 
@@ -56,8 +64,10 @@ function App() {
     setQuizConfig(null);
     setPage(result.nextPage);
   };
+
   const handleGoHome = () => {
     setStudent(null);
+    setSelectedMapel(null);
     setPage("home");
   };
 
@@ -79,7 +89,10 @@ function App() {
         );
       case "teacherLogin":
         return (
-          <TeacherLogin onLoginSuccess={() => setPage("adminDashboard")} />
+          <TeacherLogin
+            onLoginSuccess={() => setPage("adminDashboard")}
+            onGoHome={() => setPage("home")}
+          />
         );
       case "adminDashboard":
         return session ? (
@@ -88,10 +101,21 @@ function App() {
           <TeacherLogin onLoginSuccess={() => setPage("adminDashboard")} />
         );
       case "studentRegister":
-        return <StudentRegister onRegisterSuccess={handleRegisterSuccess} />;
+        return (
+          <StudentRegister
+            onRegisterSuccess={handleRegisterSuccess}
+            onGoHome={handleGoHome}
+          />
+        );
       case "modeSelect":
         return student ? (
           <ModeSelect student={student} onModeSelect={handleModeSelect} />
+        ) : (
+          <StudentRegister onRegisterSuccess={handleRegisterSuccess} />
+        );
+      case "mapelSelect":
+        return student ? (
+          <MapelSelect setPage={setPage} setSelectedMapel={setSelectedMapel} />
         ) : (
           <StudentRegister onRegisterSuccess={handleRegisterSuccess} />
         );
@@ -100,6 +124,7 @@ function App() {
           <LevelSelect
             student={student}
             gameMode={gameMode}
+            selectedMapel={selectedMapel}
             onStartQuiz={handleStartQuiz}
             onGoHome={handleGoHome}
           />
@@ -111,6 +136,7 @@ function App() {
           <StudentQuiz
             student={student}
             levelToPlay={quizConfig.levelToPlay}
+            mapelId={quizConfig.mapelId}
             gameMode={gameMode}
             onQuizComplete={handleQuizComplete}
           />
@@ -126,18 +152,34 @@ function App() {
     }
   };
 
-  const showBacksound = ["modeSelect", "levelSelect", "quiz"].includes(page);
+  const showBacksound = [
+    "modeSelect",
+    "mapelSelect",
+    "levelSelect",
+    "quiz",
+  ].includes(page);
+
+  // State untuk menangani error video
+  const [videoError, setVideoError] = useState(false);
 
   return (
     <>
-      <video
-        className="video-bg"
-        src={ruangAngkasa}
-        autoPlay
-        loop
-        muted
-        playsInline
-      />
+      {!videoError && (
+        <video
+          className="video-bg"
+          src={ruangAngkasa}
+          autoPlay
+          loop
+          muted
+          playsInline
+          onError={(e) => {
+            console.log("Video failed to load:", e);
+            setVideoError(true); // Set state untuk menangani error
+          }}
+        />
+      )}
+      {/* Fallback jika video gagal dimuat */}
+      {videoError && <div className="fallback-bg"></div>}
       <div className="app-container">
         {showBacksound && (
           <>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { supabase } from "../supabase/config";
 
-function TeacherLogin({ onLoginSuccess }) {
+function TeacherLogin({ onLoginSuccess, onGoHome }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,9 +25,20 @@ function TeacherLogin({ onLoginSuccess }) {
     setLoading(false);
   };
 
+  const handleBack = () => {
+    // Gunakan fungsi navigasi yang diteruskan dari App.jsx
+    onGoHome();
+  };
+
   return (
     <div className="form-container">
-      <h1 className="form-title">AKSARANKASA</h1>
+      <div className="header-container" style={{ marginBottom: "1rem" }}>
+        <button className="back-button" onClick={handleBack}>
+          <i className="fas fa-arrow-left"></i>
+        </button>
+        <h1 className="form-title">AKSARANKASA</h1>
+        <div className="header-right"></div>
+      </div>
       <h2
         style={{
           textAlign: "center",

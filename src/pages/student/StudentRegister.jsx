@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { supabase } from "../../supabase/config";
 
-function StudentRegister({ onRegisterSuccess }) {
+function StudentRegister({ onRegisterSuccess, onGoHome }) {
   const [name, setName] = useState("");
   const [grade, setGrade] = useState("4");
   const [school, setSchool] = useState("");
@@ -28,7 +28,13 @@ function StudentRegister({ onRegisterSuccess }) {
 
   return (
     <div className="form-container">
-      <h1 className="form-title">Daftar Pejuang</h1>
+      <div className="header-container" style={{ marginBottom: "1rem" }}>
+        <button className="back-button" onClick={onGoHome}>
+          <i className="fas fa-arrow-left"></i>
+        </button>
+        <h1 className="game-title">Daftar Pejuang</h1>
+        <div className="header-right"></div>
+      </div>
       <form onSubmit={handleSubmit} style={{ width: "100%" }}>
         <div className="input-group">
           <label className="input-label">Nama Panggilan</label>

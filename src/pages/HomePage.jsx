@@ -4,7 +4,7 @@ import React from "react";
 function HomePage({ onSelectMode }) {
   return (
     <div className="home-container">
-      <h1 className="home-title">AKSARANKASA</h1>
+      <h1 className="game-title">AKSARANKASA</h1>
       <p className="home-subtitle">
         Taklukkan Literasi dan Numerasi, Jelajahi Galaksi Pengetahuan!
       </p>

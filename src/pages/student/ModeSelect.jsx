@@ -3,7 +3,7 @@ import React from "react";
 function ModeSelect({ student, onModeSelect }) {
   return (
     <div className="home-container">
-      <h1 className="form-title">Pilih Mode Permainan</h1>
+      <h1 className="game-title">Pilih Mode Permainan</h1>
       <p className="home-subtitle">
         Selamat datang, {student.name}! Mau bermain santai atau ikut kompetisi?
       </p>

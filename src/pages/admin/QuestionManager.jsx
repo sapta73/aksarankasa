@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { supabase } from "../../supabase/config";
+import { getMataPelajaran } from "../../supabase/mapelQueries";
 import Modal from "../../components/Modal";
 
 function QuestionManager() {
   const [questions, setQuestions] = useState([]);
-  // Tambahkan 'points' ke state form dengan nilai default 10
+  const [mapelList, setMapelList] = useState([]);
+  const [selectedMapel, setSelectedMapel] = useState("");
+
+  // State untuk form
   const [formState, setFormState] = useState({
     text: "",
     options: ["", "", "", ""],
@@ -12,6 +16,7 @@ function QuestionManager() {
     level: 1,
     points: 10,
     image_path: null,
+    mapel_id: "", // Tambah field mapel_id
   });
   const [imageUpload, setImageUpload] = useState(null);
   const [editingId, setEditingId] = useState(null);
@@ -28,16 +33,38 @@ function QuestionManager() {
 
   const fetchQuestions = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    let query = supabase
       .from("questions")
-      .select("*, id")
+      .select(
+        `
+        *,
+        mata_pelajaran (
+          id,
+          nama,
+          kode
+        )
+      `
+      )
       .order("level", { ascending: true });
+
+    if (selectedMapel) {
+      query = query.eq("mapel_id", selectedMapel);
+    }
+
+    const { data, error } = await query;
+
     if (error) console.error("Error fetching questions:", error);
     else setQuestions(data || []);
     setLoading(false);
-  }, []);
+  }, [selectedMapel]);
 
+  // Load mata pelajaran saat komponen mount
   useEffect(() => {
+    const loadMapel = async () => {
+      const data = await getMataPelajaran();
+      setMapelList(data);
+    };
+    loadMapel();
     fetchQuestions();
   }, [fetchQuestions]);
 
@@ -65,6 +92,7 @@ function QuestionManager() {
       level: 1,
       points: 10,
       image_path: null,
+      mapel_id: "",
     });
     setImageUpload(null);
     setEditingId(null);
@@ -96,7 +124,7 @@ function QuestionManager() {
       imagePath = filePath;
     }
 
-    // Sertakan 'points' dalam data yang dikirim (biar adminnya aman gitu hehe)
+    // Sertakan 'points' dan 'mapel_id' dalam data yang dikirim
     const questionData = {
       text: formState.text,
       options: formState.options,
@@ -104,6 +132,7 @@ function QuestionManager() {
       level: Number(formState.level),
       points: formState.points,
       image_path: imagePath,
+      mapel_id: formState.mapel_id || null, // Pastikan mapel_id tersimpan
     };
 
     if (editingId) {
@@ -212,6 +241,25 @@ function QuestionManager() {
           >
             {editingId ? "Edit Soal" : "Tambah Soal"}
           </h2>
+
+          {/* Filter Mapel */}
+          <div className="filter-section" style={{ marginBottom: "1rem" }}>
+            <select
+              className="input-field"
+              value={selectedMapel}
+              onChange={(e) => {
+                setSelectedMapel(e.target.value);
+                fetchQuestions();
+              }}
+            >
+              <option value="">Semua Mata Pelajaran</option>
+              {mapelList.map((mapel) => (
+                <option key={mapel.id} value={mapel.id}>
+                  {mapel.nama}
+                </option>
+              ))}
+            </select>
+          </div>
           <form
             onSubmit={handleSubmit}
             className="form-container"
@@ -286,6 +334,26 @@ function QuestionManager() {
             </select>
             <div style={{ display: "flex", gap: "1rem" }}>
               <div className="input-group" style={{ flex: 1 }}>
+                <label className="input-label" htmlFor="mapel">
+                  Mata Pelajaran
+                </label>
+                <select
+                  id="mapel"
+                  name="mapel_id"
+                  className="input-field"
+                  value={formState.mapel_id}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Pilih Mata Pelajaran</option>
+                  {mapelList.map((mapel) => (
+                    <option key={mapel.id} value={mapel.id}>
+                      {mapel.nama}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="input-group" style={{ flex: 1 }}>
                 <label className="input-label" htmlFor="level">
                   Level
                 </label>
@@ -301,6 +369,8 @@ function QuestionManager() {
                   required
                 />
               </div>
+            </div>
+            <div style={{ display: "flex", gap: "1rem" }}>
               <div className="input-group" style={{ flex: 1 }}>
                 <label className="input-label" htmlFor="points">
                   Poin
@@ -363,7 +433,8 @@ function QuestionManager() {
                   )}
                   <p>
                     <strong>
-                      Lv.{q.level} ({q.points || 10} Poin)
+                      [{q.mata_pelajaran?.nama || "Tanpa Mapel"}] Lv.{q.level} (
+                      {q.points || 10} Poin)
                     </strong>{" "}
                     - {q.text}
                   </p>
